@@ -26,17 +26,19 @@ public class TCPEchoClient {
     String message="";
     String userID;
     String Ip;
+    String password;
 
 
 public TCPEchoClient(){
 
 }
-public TCPEchoClient( String Ip, String port, FormEchoClient Gui , String userID){
+public TCPEchoClient( String Ip, String port, FormEchoClient Gui , String userID, char[] password){
 
     this.Ip = Ip;
     this.PORT =  Integer.parseInt(port);
     this.serverGUI= Gui;
     this.userID = userID;
+    this.password = new String(password);
     this.serverGUI.writeToLog("Starting communication with server ");
 
 
@@ -106,6 +108,7 @@ private void accessServer()
         String  response;
         response = this.myInput.nextLine(); //Step 3.
         this.myOutput.println(this.myClient.userID);
+        this.myOutput.println(this.myClient.password);
         do
         {
            response = this.myInput.nextLine(); //Step 3.
