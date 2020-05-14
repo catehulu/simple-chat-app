@@ -47,7 +47,7 @@ public class MultiThreadChatServer {
         
         ujianUser.put("Siraj",new HashMap<Integer, String>());
         int latestNomor;
-        latestNomor = ujianUser.get("siraj").size();
+        latestNomor = ujianUser.get("Siraj").size();
         ujianUser.get("Siraj").put(latestNomor+1, "Apa yang disebut dengan kucing ?");
         
         ujianSiswas.put("Siraj", new HashMap<String, UjianSiswa>());

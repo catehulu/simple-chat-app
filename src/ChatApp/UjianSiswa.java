@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class UjianSiswa {
 
     private String namaSiswa;
-    private HashMap<Integer, String> jawabanSiswa;
+    private HashMap<Integer, String> jawabanSiswa = new HashMap<Integer, String>();
 
     public UjianSiswa(String namaSiswa, HashMap<Integer, String> soals) {
         for (HashMap.Entry<Integer, String> entry : soals.entrySet()) {
