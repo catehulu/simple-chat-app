@@ -37,12 +37,18 @@ public class MultiThreadChatServer {
     private static final clientThread[] threads = new clientThread[maxClientsCount]; ///ada di kelas utama
     private static final List<String> nama = new ArrayList<String>();
     private static final HashMap<String, User> userAccount = new HashMap<String, User>();
+    private static final HashMap<String, ArrayList> ujianUser = new HashMap<String, ArrayList>();
 
     public static void main(String args[]) {
 
         userAccount.put("Siraj", new User("Siraj","kelincilucu","guru"));
         userAccount.put("Tyo", new User("Tyo","dangkotenak","siswa"));
-
+        
+        ujianUser.put("Siraj",new ArrayList());
+        int latestNomor;
+        latestNomor = ujianUser.get("siraj").size();
+        ujianUser.get("siraj").add(new Soal(latestNomor+1, "Apa yang disebut dengan kucing ?"));
+        
         // The default port number.
         int portNumber = 2222;
         if (args.length < 1) {
