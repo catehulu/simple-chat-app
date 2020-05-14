@@ -37,17 +37,40 @@ public class MultiThreadChatServer {
     private static final clientThread[] threads = new clientThread[maxClientsCount]; ///ada di kelas utama
     private static final List<String> nama = new ArrayList<String>();
     private static final HashMap<String, User> userAccount = new HashMap<String, User>();
-    private static final HashMap<String, ArrayList> ujianUser = new HashMap<String, ArrayList>();
+    private static final HashMap<String, HashMap<Integer,String>> ujianUser = new HashMap<String, HashMap<Integer,String>>();
+    private static final HashMap<String, HashMap<String, UjianSiswa>> ujianSiswas = new HashMap<String, HashMap<String, UjianSiswa>>();
 
     public static void main(String args[]) {
 
         userAccount.put("Siraj", new User("Siraj","kelincilucu","guru"));
         userAccount.put("Tyo", new User("Tyo","dangkotenak","siswa"));
         
-        ujianUser.put("Siraj",new ArrayList());
+        ujianUser.put("Siraj",new HashMap<Integer, String>());
         int latestNomor;
         latestNomor = ujianUser.get("siraj").size();
-        ujianUser.get("siraj").add(new Soal(latestNomor+1, "Apa yang disebut dengan kucing ?"));
+        ujianUser.get("Siraj").put(latestNomor+1, "Apa yang disebut dengan kucing ?");
+        
+        ujianSiswas.put("Siraj", new HashMap<String, UjianSiswa>());
+        ujianSiswas.get("Siraj").put("Tyo",new UjianSiswa("Tyo", ujianUser.get("Siraj")));
+        
+        //Cara jawab
+        ujianSiswas.get("Siraj").get("Tyo").jawabSoal(1, "Jawaban saya");
+        
+        //Cara ambil semua soal
+        //ujianUser.get("Siraj")
+        
+        //Cara iterate semua soal, pakai for aja
+        /*
+        
+        for (i=1, i<=ujianUser.get("Siraj").size(), i++ {
+            soal = ujianUser.get("Siraj").get(i);
+        }
+        
+         */
+     
+        
+        
+        
         
         // The default port number.
         int portNumber = 2222;
