@@ -36,12 +36,12 @@ public class MultiThreadChatServer {
     private static final int maxClientsCount = 10;
     private static final clientThread[] threads = new clientThread[maxClientsCount]; ///ada di kelas utama
     private static final List<String> nama = new ArrayList<String>();
-    private static final HashMap<String, String> userAccount = new HashMap<String, String>();
+    private static final HashMap<String, User> userAccount = new HashMap<String, User>();
 
     public static void main(String args[]) {
 
-        userAccount.put("Siraj", "kelinciimut");
-        userAccount.put("Tyo", "dangkotenak");
+        userAccount.put("Siraj", new User("Siraj","kelincilucu","guru"));
+        userAccount.put("Tyo", new User("Tyo","dangkotenak","siswa"));
 
         // The default port number.
         int portNumber = 2222;
@@ -109,9 +109,9 @@ class clientThread extends Thread {
     private final clientThread[] threads;
     private int maxClientsCount;
     private final List<String> nama;
-    private final HashMap<String, String> userAccount;
+    private final HashMap<String, User> userAccount;
 
-    public clientThread(Socket clientSocket, clientThread[] threads, List<String> nama, HashMap<String, String> userAccount) {
+    public clientThread(Socket clientSocket, clientThread[] threads, List<String> nama, HashMap<String, User> userAccount) {
         this.clientSocket = clientSocket;
         this.threads = threads;
         maxClientsCount = threads.length;
@@ -134,7 +134,7 @@ class clientThread extends Thread {
             os.println("Enter your password.");
             String password = is.readLine().trim();
             if (userAccount.containsKey(name)) {
-                if (userAccount.get(name).compareTo(password) == 0) {
+                if (userAccount.get(name).matchPassword(password)) {
                     this.nama.add(name);
 
                     os.println("Hello " + name
