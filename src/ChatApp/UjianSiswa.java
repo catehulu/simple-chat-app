@@ -26,4 +26,9 @@ public class UjianSiswa {
     public void jawabSoal(Integer nomor, String jawaban) {
         this.jawabanSiswa.put(nomor, jawaban);
     }
+    
+    public String getJawaban(int i)
+    {
+        return this.jawabanSiswa.get(i);
+    }
 }

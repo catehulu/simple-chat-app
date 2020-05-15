@@ -18,6 +18,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
 
@@ -49,6 +50,7 @@ public class MultiThreadChatServer {
         int latestNomor;
         latestNomor = ujianUser.get("Siraj").size();
         ujianUser.get("Siraj").put(latestNomor+1, "Apa yang disebut dengan kucing ?");
+        ujianUser.get("Siraj").put(latestNomor+2, "Apa yang disebut dengan harimau ?");
         
         ujianSiswas.put("Siraj", new HashMap<String, UjianSiswa>());
         ujianSiswas.get("Siraj").put("Tyo",new UjianSiswa("Tyo", ujianUser.get("Siraj")));
@@ -62,9 +64,9 @@ public class MultiThreadChatServer {
         //Cara iterate semua soal, pakai for aja
         /*
         
-        for (i=1, i<=ujianUser.get("Siraj").size(), i++ {
-            soal = ujianUser.get("Siraj").get(i);
-        }
+//        for (i=1, i<=ujianUser.get("Siraj").size(), i++ {
+//            soal = ujianUser.get("Siraj").get(i);
+//        }
         
          */
      
@@ -103,7 +105,7 @@ public class MultiThreadChatServer {
                 for (i = 0; i < maxClientsCount; i++) {
                     if (threads[i] == null) {
                         //(threads[i] = new clientThread(clientSocket, threads)).start();
-                        threads[i] = new clientThread(clientSocket, threads, nama, userAccount); // obyek array of thread di object induk juga dilempar ke objeck anak (client thread)
+                        threads[i] = new clientThread(clientSocket, threads, nama, userAccount, ujianUser, ujianSiswas); // obyek array of thread di object induk juga dilempar ke objeck anak (client thread)
                         threads[i].start();
 
                         break;
@@ -139,13 +141,18 @@ class clientThread extends Thread {
     private int maxClientsCount;
     private final List<String> nama;
     private final HashMap<String, User> userAccount;
-
-    public clientThread(Socket clientSocket, clientThread[] threads, List<String> nama, HashMap<String, User> userAccount) {
+    private final HashMap<String, HashMap<Integer,String>> ujianUser;
+    private final HashMap<String, HashMap<String, UjianSiswa>> ujianSiswas;
+    
+    public clientThread(Socket clientSocket, clientThread[] threads, List<String> nama, HashMap<String, User> userAccount, 
+            HashMap<String, HashMap<Integer,String>> ujianUser, HashMap<String, HashMap<String, UjianSiswa>> ujianSiswas) {
         this.clientSocket = clientSocket;
         this.threads = threads;
         maxClientsCount = threads.length;
         this.nama = nama;
         this.userAccount = userAccount;
+        this.ujianUser = ujianUser;
+        this.ujianSiswas = ujianSiswas;
     }
 
     public void run() {
@@ -171,17 +178,49 @@ class clientThread extends Thread {
 
                     //   String nama = "#ulil#apa kabar ulil" ;
                     //          String datanya[] = nama.split("#");
-                    for (int i = 0; i < maxClientsCount; i++) {
-                        if (threads[i] != null && threads[i] != this) {
-                            threads[i].os.println("* A new user " + name
-                                    + " entered the chat room !!! *");
-                        }
-                    }
+//                    for (int i = 0; i < maxClientsCount; i++) {
+//                        if (threads[i] != null && threads[i] != this) {
+//                            threads[i].os.println("* A new user " + name
+//                                    + " entered the chat room !!! *");
+//                        }
+//                    }
 
                     OUTER:
                     while (!Thread.interrupted()) {
-                        String line = is.readLine();
-                        switch (line.charAt(0)) {
+
+                        if(userAccount.get(name).getRole().equals("siswa")){
+                           String line = is.readLine();
+                           String [] messages = line.split("#");
+                           if(messages[0].equalsIgnoreCase("jawab")){
+                               String nameGuru = messages[1];
+                               os.println("Selamat Datang pada Ujian, selamat mengerjakan");
+                               String answer;
+                                for (int i=1; i<=ujianUser.get(nameGuru).size(); i++) {
+                                    long startTime = System.currentTimeMillis();
+                                    long elapsedTime = 0L;
+                                    os.println("Soal nomor " + i);
+                                    os.println(ujianUser.get(nameGuru).get(i));
+                                    answer = "tidak di jawab";
+                                    while (elapsedTime < 5*1000) {
+                                        if((answer = is.readLine()) != null)
+                                            os.println("Jawaban anda untuk nomor :" + i + " adalah " + answer);
+                                        //perform db poll/check
+                                        elapsedTime = (new Date()).getTime() - startTime;
+                                    }
+                                    if(answer.equalsIgnoreCase("tidak di jawab"))
+                                        os.println(answer);
+                                    ujianSiswas.get(nameGuru).get(name).jawabSoal(i, answer);
+                                }
+                                os.println("Ujian telah selesai");
+                                os.println("Jawaban anda yang masuk : ");
+                                for (int i=1; i<=ujianUser.get(nameGuru).size(); i++) {
+                                   os.println(ujianSiswas.get(nameGuru).get(name).getJawaban(i));
+                                 }
+                           }
+                        }
+                        else{
+                            String line = is.readLine();
+                            switch (line.charAt(0)) {
                             case '?': {
                                 String[] messages = line.split("#");
                                 String namaUser = messages[0].substring(1, messages[0].length());
@@ -229,7 +268,9 @@ class clientThread extends Thread {
                                     }
                                 }
                                 break;
+                            }
                         }
+                        
                     }
 
                     for (int i = 0; i < maxClientsCount; i++) {
