@@ -187,7 +187,7 @@ class clientThread extends Thread {
 
                     OUTER:
                     while (!Thread.interrupted()) {
-
+                        
                         if(userAccount.get(name).getRole().equals("siswa")){
                            String line = is.readLine();
                            String [] messages = line.split("#");
@@ -264,7 +264,7 @@ class clientThread extends Thread {
                                 }
                                 for (int i = 0; i < maxClientsCount; i++) {
                                     if (threads[i] != null) {
-                                        threads[i].os.println("<" + name + "--> " + line);
+                                        threads[i].os.println("[" + name + "] " + line);
                                     }
                                 }
                                 break;

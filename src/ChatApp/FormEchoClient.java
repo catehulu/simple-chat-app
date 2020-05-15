@@ -15,9 +15,16 @@ package ChatApp;
  *
  * @author waswib
  */
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.html.HTMLDocument;
 public class FormEchoClient extends javax.swing.JFrame {
 
 
@@ -25,6 +32,8 @@ public class FormEchoClient extends javax.swing.JFrame {
     /** Creates new form FormEchoClient */
     public FormEchoClient() {
         initComponents();
+        this.txtLog.setContentType("text/html");
+        this.txtLog.setText("<html></html>");
     }
 
     /** This method is called from within the constructor to
@@ -40,8 +49,6 @@ public class FormEchoClient extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         txtPort = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        txtLog = new javax.swing.JTextArea();
         jLabel3 = new javax.swing.JLabel();
         txtUser = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
@@ -52,6 +59,8 @@ public class FormEchoClient extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jPasswordField1 = new javax.swing.JPasswordField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txtLog = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -74,11 +83,6 @@ public class FormEchoClient extends javax.swing.JFrame {
         });
 
         jLabel2.setText("Port");
-
-        txtLog.setColumns(20);
-        txtLog.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-        txtLog.setRows(5);
-        jScrollPane1.setViewportView(txtLog);
 
         jLabel3.setText("Nama User");
 
@@ -125,10 +129,26 @@ public class FormEchoClient extends javax.swing.JFrame {
             }
         });
 
+        jScrollPane2.setViewportView(txtLog);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(35, 35, 35)
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtIp, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
+                .addGap(28, 28, 28)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jButton2)
+                .addGap(15, 15, 15))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -149,25 +169,11 @@ public class FormEchoClient extends javax.swing.JFrame {
                         .addGap(40, 40, 40)
                         .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(98, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(35, 35, 35)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtIp, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
-                .addGap(28, 28, 28)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jButton2)
-                .addGap(15, 15, 15))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
-                .addContainerGap())
+                        .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 674, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -194,7 +200,7 @@ public class FormEchoClient extends javax.swing.JFrame {
                     .addComponent(jButton1)
                     .addComponent(jButton2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
@@ -213,8 +219,11 @@ public class FormEchoClient extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
-   public void writeToLog(String pesan){
-        this.txtLog.append(pesan + "\r\n");
+   public void writeToLog(String pesan) throws BadLocationException, IOException{
+//        SimpleAttributeSet keyWord = new SimpleAttributeSet();
+        HTMLDocument doc=(HTMLDocument) txtLog.getStyledDocument();
+        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),pesan+"<br>");
+//        doc.insertString(doc.getLength()-6, pesan+"<br>", null );
 
         //
 
@@ -324,15 +333,15 @@ public class FormEchoClient extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel labelJam;
     private javax.swing.JTextField txtIp;
-    private javax.swing.JTextArea txtLog;
+    private javax.swing.JTextPane txtLog;
     private javax.swing.JTextField txtMessage;
     private javax.swing.JTextField txtPort;
     private javax.swing.JTextField txtUser;
     // End of variables declaration//GEN-END:variables
-
+    private StyledDocument doc;
 
     class MyTimerTask extends TimerTask {
 
