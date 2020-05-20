@@ -13,8 +13,11 @@ package ChatApp;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
 
 public class TCPEchoClient {
 
@@ -39,7 +42,13 @@ public TCPEchoClient( String Ip, String port, FormEchoClient Gui , String userID
     this.serverGUI= Gui;
     this.userID = userID;
     this.password = new String(password);
-    this.serverGUI.writeToLog("Starting communication with server ");
+        try {
+            this.serverGUI.writeToLog("Starting communication with server ");
+        } catch (BadLocationException ex) {
+            Logger.getLogger(TCPEchoClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(TCPEchoClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
 
 }
@@ -65,7 +74,13 @@ public void kirim (String pesan ) {
 }
 
 public void tulisLog (String pesan){
-    this.serverGUI.writeToLog(pesan);
+        try {
+            this.serverGUI.writeToLog(pesan);
+        } catch (BadLocationException ex) {
+            Logger.getLogger(TCPEchoClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(TCPEchoClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
 }
 
 private void accessServer()
@@ -111,10 +126,16 @@ private void accessServer()
         this.myOutput.println(this.myClient.password);
         do
         {
-           response = this.myInput.nextLine(); //Step 3.
-
-           //this.myClient.serverGUI.writeToLog
-           this.myClient.serverGUI.writeToLog(response);
+            try {
+                response = this.myInput.nextLine(); //Step 3.
+                
+                //this.myClient.serverGUI.writeToLog
+                this.myClient.serverGUI.writeToLog(response);
+            } catch (BadLocationException ex) {
+                Logger.getLogger(TCPEchoClient.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(TCPEchoClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }while (!message.equals("q!"));
 
 

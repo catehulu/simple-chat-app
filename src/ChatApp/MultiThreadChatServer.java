@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Timer;
 
 /**
  *
@@ -38,29 +39,28 @@ public class MultiThreadChatServer {
     private static final clientThread[] threads = new clientThread[maxClientsCount]; ///ada di kelas utama
     private static final List<String> nama = new ArrayList<String>();
     private static final HashMap<String, User> userAccount = new HashMap<String, User>();
-    private static final HashMap<String, HashMap<Integer,String>> ujianUser = new HashMap<String, HashMap<Integer,String>>();
+    private static final HashMap<String, HashMap<Integer, String>> ujianUser = new HashMap<String, HashMap<Integer, String>>();
     private static final HashMap<String, HashMap<String, UjianSiswa>> ujianSiswas = new HashMap<String, HashMap<String, UjianSiswa>>();
 
     public static void main(String args[]) {
 
-        userAccount.put("Siraj", new User("Siraj","kelincilucu","guru"));
-        userAccount.put("Tyo", new User("Tyo","dangkotenak","siswa"));
-        
-        ujianUser.put("Siraj",new HashMap<Integer, String>());
+        userAccount.put("Siraj", new User("Siraj", "kelincilucu", "guru"));
+        userAccount.put("Tyo", new User("Tyo", "dangkotenak", "siswa"));
+
+        ujianUser.put("Siraj", new HashMap<Integer, String>());
         int latestNomor;
         latestNomor = ujianUser.get("Siraj").size();
-        ujianUser.get("Siraj").put(latestNomor+1, "Apa yang disebut dengan kucing ?");
-        ujianUser.get("Siraj").put(latestNomor+2, "Apa yang disebut dengan harimau ?");
-        
+        ujianUser.get("Siraj").put(latestNomor + 1, "Apa gambar dibawah ini ?<br><img src=\"https://images.pexels.com/photos/730896/pexels-photo-730896.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940\">");
+        ujianUser.get("Siraj").put(latestNomor + 2, "Apa yang disebut dengan harimau ?");
+
         ujianSiswas.put("Siraj", new HashMap<String, UjianSiswa>());
-        ujianSiswas.get("Siraj").put("Tyo",new UjianSiswa("Tyo", ujianUser.get("Siraj")));
-        
+        ujianSiswas.get("Siraj").put("Tyo", new UjianSiswa("Tyo", ujianUser.get("Siraj")));
+
         //Cara jawab
         ujianSiswas.get("Siraj").get("Tyo").jawabSoal(1, "Jawaban saya");
-        
+
         //Cara ambil semua soal
         //ujianUser.get("Siraj")
-        
         //Cara iterate semua soal, pakai for aja
         /*
         
@@ -69,11 +69,6 @@ public class MultiThreadChatServer {
 //        }
         
          */
-     
-        
-        
-        
-        
         // The default port number.
         int portNumber = 2222;
         if (args.length < 1) {
@@ -141,11 +136,14 @@ class clientThread extends Thread {
     private int maxClientsCount;
     private final List<String> nama;
     private final HashMap<String, User> userAccount;
-    private final HashMap<String, HashMap<Integer,String>> ujianUser;
+    private final HashMap<String, HashMap<Integer, String>> ujianUser;
     private final HashMap<String, HashMap<String, UjianSiswa>> ujianSiswas;
-    
-    public clientThread(Socket clientSocket, clientThread[] threads, List<String> nama, HashMap<String, User> userAccount, 
-            HashMap<String, HashMap<Integer,String>> ujianUser, HashMap<String, HashMap<String, UjianSiswa>> ujianSiswas) {
+    private int isUjian = 0;
+    private int currentNumber = 0;
+    private Timer ujianTimer;
+
+    public clientThread(Socket clientSocket, clientThread[] threads, List<String> nama, HashMap<String, User> userAccount,
+            HashMap<String, HashMap<Integer, String>> ujianUser, HashMap<String, HashMap<String, UjianSiswa>> ujianSiswas) {
         this.clientSocket = clientSocket;
         this.threads = threads;
         maxClientsCount = threads.length;
@@ -184,93 +182,130 @@ class clientThread extends Thread {
 //                                    + " entered the chat room !!! *");
 //                        }
 //                    }
-
                     OUTER:
                     while (!Thread.interrupted()) {
-                        
-                        if(userAccount.get(name).getRole().equals("siswa")){
-                           String line = is.readLine();
-                           String [] messages = line.split("#");
-                           if(messages[0].equalsIgnoreCase("jawab")){
-                               String nameGuru = messages[1];
-                               os.println("Selamat Datang pada Ujian, selamat mengerjakan");
-                               String answer;
-                                for (int i=1; i<=ujianUser.get(nameGuru).size(); i++) {
-                                    long startTime = System.currentTimeMillis();
-                                    long elapsedTime = 0L;
-                                    os.println("Soal nomor " + i);
-                                    os.println(ujianUser.get(nameGuru).get(i));
-                                    answer = "tidak di jawab";
-                                    while (elapsedTime < 5*1000) {
-                                        if((answer = is.readLine()) != null)
-                                            os.println("Jawaban anda untuk nomor :" + i + " adalah " + answer);
-                                        //perform db poll/check
-                                        elapsedTime = (new Date()).getTime() - startTime;
-                                    }
-                                    if(answer.equalsIgnoreCase("tidak di jawab"))
-                                        os.println(answer);
-                                    ujianSiswas.get(nameGuru).get(name).jawabSoal(i, answer);
-                                }
-                                os.println("Ujian telah selesai");
-                                os.println("Jawaban anda yang masuk : ");
-                                for (int i=1; i<=ujianUser.get(nameGuru).size(); i++) {
-                                   os.println(ujianSiswas.get(nameGuru).get(name).getJawaban(i));
-                                 }
-                           }
-                        }
-                        else{
+                        if (userAccount.get(name).getRole().equals("siswa")) {
                             String line = is.readLine();
-                            switch (line.charAt(0)) {
-                            case '?': {
-                                String[] messages = line.split("#");
-                                String namaUser = messages[0].substring(1, messages[0].length());
-                                if (namaUser.compareTo("kick") == 0) {
-                                    namaUser = messages[1];
-                                    for (int i = 0; i < maxClientsCount; i++) {
-                                        if (threads[i] != null && nama.get(i).equalsIgnoreCase(namaUser)) {
-                                            threads[i].interrupt();
-                                            threads[i] = null;
-
-                                        }
+                            String[] messages = line.split("#");
+                            switch (messages[0]) {
+                                case "jawab": {
+                                    String nameGuru = messages[1];
+                                    os.println("Selamat Datang pada Ujian, selamat mengerjakan");
+                                    os.println("Dalam 5 detik ujian akan dimulai");
+                                    os.println("Silahkan menjawab soal, persoal 60 detik");
+                                    os.println("Jawaban akan tersimpan setiap soal");
+                                    String answer;
+                                    this.isUjian = 1;
+                                    this.ujianTimer = new Timer();
+                                    os.println("system#timer_on");
+                                    UjianTimer tt = new UjianTimer(this, os, ujianUser.get(nameGuru), nameGuru);
+                                    this.ujianTimer.schedule(tt, 5000, 30000);
+                                    System.out.println("ujiantimer run");
+                                    while (this.isUjian == 1) {
+                                        answer = is.readLine();
+                                        ujianSiswas.get(nameGuru).get(name).jawabSoal(currentNumber, answer);
+                                        os.println("Jawaban anda :" + answer);
+                                    }
+                                    this.ujianTimer.cancel();
+                                    os.println("system#timer_off");
+                                    os.println("Ujian telah selesai");
+                                    os.println("Jawaban anda yang masuk : ");
+                                    for (int i = 1; i <= ujianUser.get(nameGuru).size(); i++) {
+                                        os.println(i + ". " + ujianSiswas.get(nameGuru).get(name).getJawaban(i));
                                     }
                                     break;
-
-                                } else {
-
-                                    String pesan = messages[1];
-                                    for (int i = 0; i < maxClientsCount; i++) {
-                                        if (threads[i] != null && nama.get(i).equalsIgnoreCase(namaUser)) {
-                                            threads[i].os.println("<" + name + "--> " + pesan);
-                                        }
+                                }
+                                case "nilai": {
+                                    String nameGuru = messages[1];
+                                    os.println("Nilai anda untuk ujian oleh "+nameGuru);
+                                    for (int i = 1; i <= ujianUser.get(nameGuru).size(); i++) {
+                                        os.println(i + ". " + ujianSiswas.get(nameGuru).get(name).getNilai(i));
                                     }
                                     break;
                                 }
+                                case "ujian": {
+                                    String nameGuru = messages[1];
+                                    ujianSiswas.get(nameGuru).put(name, new UjianSiswa(name, ujianUser.get(nameGuru)));
+                                    os.println("Anda terdaftar ikut ujian oleh "+nameGuru);
+                                }
                             }
-                            case '!': {
-                                String[] messages = line.split("#");
-                                String namaUser = messages[0].substring(1, messages[0].length());
-                                String pesan = messages[1];
-                                for (int i = 0; i < maxClientsCount; i++) {
-                                    if (threads[i] != null && (nama.get(i).toLowerCase().compareTo(namaUser.toLowerCase()) != 0)
-                                            && (name.compareTo(nama.get(i)) != 0)) {
-                                        threads[i].os.println("<" + name + "--> " + pesan);
+                        } else {
+                            String line = is.readLine();
+                            String[] messages = line.split("#");
+                            switch (messages[0]) {
+                                case "tambah": {
+                                    String soal = messages[1];
+                                    break;
+                                }
+                                case "nilai": {
+                                    String nameSiswa = messages[1];
+                                    int nomor = Integer.parseInt(messages[2]);
+                                    int nilai = Integer.parseInt(messages[3]);
+                                    ujianSiswas.get(name).get(nameSiswa).nilaiSoal(nomor, nilai);
+                                    os.println("Nilai "+nameSiswa+" berhasil di update");
+                                    break;
+                                }
+                                case "jawab": {
+                                    String nameSiswa = messages[1];
+                                    os.println("Jawaban untuk siswa "+nameSiswa+":");
+                                    for (int i = 1; i <= ujianUser.get(name).size(); i++) {
+                                        os.println(i + ". " + ujianSiswas.get(name).get(nameSiswa).getJawaban(i));
                                     }
                                 }
-                                break;
                             }
-                            default:
-                                if (line.startsWith("/quit")) {
-                                    break OUTER;
-                                }
-                                for (int i = 0; i < maxClientsCount; i++) {
-                                    if (threads[i] != null) {
-                                        threads[i].os.println("[" + name + "] " + line);
-                                    }
-                                }
-                                break;
-                            }
+
+//                            String line = is.readLine();
+//                            switch (line.charAt(0)) {
+//                                case '?': {
+//                                    String[] messages = line.split("#");
+//                                    String namaUser = messages[0].substring(1, messages[0].length());
+//                                    if (namaUser.compareTo("kick") == 0) {
+//                                        namaUser = messages[1];
+//                                        for (int i = 0; i < maxClientsCount; i++) {
+//                                            if (threads[i] != null && nama.get(i).equalsIgnoreCase(namaUser)) {
+//                                                threads[i].interrupt();
+//                                                threads[i] = null;
+//
+//                                            }
+//                                        }
+//                                        break;
+//
+//                                    } else {
+//
+//                                        String pesan = messages[1];
+//                                        for (int i = 0; i < maxClientsCount; i++) {
+//                                            if (threads[i] != null && nama.get(i).equalsIgnoreCase(namaUser)) {
+//                                                threads[i].os.println("<" + name + "--> " + pesan);
+//                                            }
+//                                        }
+//                                        break;
+//                                    }
+//                                }
+//                                case '!': {
+//                                    String[] messages = line.split("#");
+//                                    String namaUser = messages[0].substring(1, messages[0].length());
+//                                    String pesan = messages[1];
+//                                    for (int i = 0; i < maxClientsCount; i++) {
+//                                        if (threads[i] != null && (nama.get(i).toLowerCase().compareTo(namaUser.toLowerCase()) != 0)
+//                                                && (name.compareTo(nama.get(i)) != 0)) {
+//                                            threads[i].os.println("<" + name + "--> " + pesan);
+//                                        }
+//                                    }
+//                                    break;
+//                                }
+//                                default:
+//                                    if (line.startsWith("/quit")) {
+//                                        break OUTER;
+//                                    }
+//                                    for (int i = 0; i < maxClientsCount; i++) {
+//                                        if (threads[i] != null) {
+//                                            threads[i].os.println("[" + name + "] " + line);
+//                                        }
+//                                    }
+//                                    break;
+//                            }
                         }
-                        
+
                     }
 
                     for (int i = 0; i < maxClientsCount; i++) {
@@ -284,7 +319,7 @@ class clientThread extends Thread {
                     os.println("Password salah !");
                 }
             } else {
-                 os.println("Akun tidak ada!");
+                os.println("Akun tidak ada!");
             }
 
             /*
@@ -307,5 +342,13 @@ class clientThread extends Thread {
 
             e.printStackTrace();
         }
+    }
+
+    public void setCurrentNumber(int currentNumber) {
+        this.currentNumber = currentNumber;
+    }
+
+    public void setIsUjian(int isUjian) {
+        this.isUjian = isUjian;
     }
 }
