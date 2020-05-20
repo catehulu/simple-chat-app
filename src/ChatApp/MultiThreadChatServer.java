@@ -182,6 +182,18 @@ class clientThread extends Thread {
 //                                    + " entered the chat room !!! *");
 //                        }
 //                    }
+                    if (userAccount.get(name).getRole().equals("siswa")) {
+                        os.println("Command usage :");
+                        os.println("ujian#[nama_guru] : Mendaftarkan diri ke ujian oleh guru");
+                        os.println("jawab#[nama_guru] : Memulai ujian guru yang dipilih");
+                        os.println("nilai#[nama_guru] : Melihat nilai ujian yang telah diinputkan guru");
+                    } else {
+                        os.println("Command usage :");
+                        os.println("tambah#[soal] : Menambah soal");
+                        os.println("nilai#[nama_siswa]#[nomor]#[nilai] : Menilai jawaban siswa");
+                        os.println("jawab#[nama_siswa] : Melihat jawaban siswa");
+                        os.println("list : Melihat jawaban siswa");
+                    }
                     OUTER:
                     while (!Thread.interrupted()) {
                         if (userAccount.get(name).getRole().equals("siswa")) {
@@ -217,7 +229,7 @@ class clientThread extends Thread {
                                 }
                                 case "nilai": {
                                     String nameGuru = messages[1];
-                                    os.println("Nilai anda untuk ujian oleh "+nameGuru);
+                                    os.println("Nilai anda untuk ujian oleh " + nameGuru);
                                     for (int i = 1; i <= ujianUser.get(nameGuru).size(); i++) {
                                         os.println(i + ". " + ujianSiswas.get(nameGuru).get(name).getNilai(i));
                                     }
@@ -226,7 +238,7 @@ class clientThread extends Thread {
                                 case "ujian": {
                                     String nameGuru = messages[1];
                                     ujianSiswas.get(nameGuru).put(name, new UjianSiswa(name, ujianUser.get(nameGuru)));
-                                    os.println("Anda terdaftar ikut ujian oleh "+nameGuru);
+                                    os.println("Anda terdaftar ikut ujian oleh " + nameGuru);
                                 }
                             }
                         } else {
@@ -242,15 +254,27 @@ class clientThread extends Thread {
                                     int nomor = Integer.parseInt(messages[2]);
                                     int nilai = Integer.parseInt(messages[3]);
                                     ujianSiswas.get(name).get(nameSiswa).nilaiSoal(nomor, nilai);
-                                    os.println("Nilai "+nameSiswa+" berhasil di update");
+                                    os.println("Nilai " + nameSiswa + " berhasil di update");
                                     break;
                                 }
                                 case "jawab": {
                                     String nameSiswa = messages[1];
-                                    os.println("Jawaban untuk siswa "+nameSiswa+":");
+                                    os.println("Jawaban untuk siswa " + nameSiswa + ":");
                                     for (int i = 1; i <= ujianUser.get(name).size(); i++) {
                                         os.println(i + ". " + ujianSiswas.get(name).get(nameSiswa).getJawaban(i));
                                     }
+                                    break;
+                                }
+                                case "list": {
+                                    os.println("Siswa yang terdaftar dalam ujian :");
+                                    os.println("---");
+                                    for (HashMap.Entry<String, UjianSiswa> entry : ujianSiswas.get(name).entrySet()) {
+//                                        UjianSiswa ujianSiswa = entry.getValue();
+                                        String namaSiswa = entry.getKey();
+                                        os.println("->" + namaSiswa);
+                                    }
+                                    os.println("---");
+                                    break;
                                 }
                             }
 
