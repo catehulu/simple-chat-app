@@ -50,7 +50,9 @@ public class MultiThreadChatServer {
         ujianUser.put("Siraj", new HashMap<Integer, String>());
         int latestNomor;
         latestNomor = ujianUser.get("Siraj").size();
-        ujianUser.get("Siraj").put(latestNomor + 1, "Apa gambar dibawah ini ?<br><img src=\"https://images.pexels.com/photos/730896/pexels-photo-730896.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940\">");
+        String path = System.getProperty("user.dir");
+        System.out.println(path);
+        ujianUser.get("Siraj").put(latestNomor + 1, "Apa gambar dibawah ini ?<br><img src=\"file:\\"+path+"\\image\\gambar-kucing.jpg\" width=\"500\">");
         ujianUser.get("Siraj").put(latestNomor + 2, "Apa yang disebut dengan harimau ?");
 
         ujianSiswas.put("Siraj", new HashMap<String, UjianSiswa>());
@@ -211,15 +213,17 @@ class clientThread extends Thread {
                                     this.ujianTimer = new Timer();
                                     os.println("system#timer_on");
                                     UjianTimer tt = new UjianTimer(this, os, ujianUser.get(nameGuru), nameGuru);
-                                    this.ujianTimer.schedule(tt, 5000, 30000);
+                                    this.ujianTimer.schedule(tt, 5000, 60000);
                                     System.out.println("ujiantimer run");
                                     while (this.isUjian == 1) {
                                         answer = is.readLine();
-                                        ujianSiswas.get(nameGuru).get(name).jawabSoal(currentNumber, answer);
-                                        os.println("Jawaban anda :" + answer);
+                                        if (this.isUjian == 0) {
+                                            os.println("Jawaban tersimpan!");
+                                        } else {
+                                            ujianSiswas.get(nameGuru).get(name).jawabSoal(currentNumber, answer);
+                                            os.println("Jawaban anda :" + answer);
+                                        }
                                     }
-                                    this.ujianTimer.cancel();
-                                    os.println("system#timer_off");
                                     os.println("Ujian telah selesai");
                                     os.println("Jawaban anda yang masuk : ");
                                     for (int i = 1; i <= ujianUser.get(nameGuru).size(); i++) {

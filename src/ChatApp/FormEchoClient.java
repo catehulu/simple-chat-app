@@ -36,6 +36,8 @@ public class FormEchoClient extends javax.swing.JFrame {
         initComponents();
         this.txtLog.setContentType("text/html");
         this.txtLog.setText("<html></html>");
+//        CustomToolKit toolKit = new CustomToolKit();
+//        this.txtLog.setEditorKit(toolKit);
     }
 
     /**
@@ -229,7 +231,7 @@ public class FormEchoClient extends javax.swing.JFrame {
             if (messages[1].equalsIgnoreCase("timer_on")) {
                 MyTimerTask myTask = new MyTimerTask(this);
                 this.ujianTimer = new Timer();
-                this.ujianTimer.schedule(myTask, 5000, 1000);
+                this.ujianTimer.schedule(myTask, 3000, 1000);
             } else {
                 this.ujianTimer.cancel();
             }

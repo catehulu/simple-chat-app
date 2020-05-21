@@ -40,9 +40,12 @@ public class UjianTimer extends TimerTask {
     }
 
     public void run() {
-        System.out.println("run for soal"+this.nomorSoal);
-        if (jumlahSoal < nomorSoal) {
+        System.out.println("run for soal" + this.nomorSoal);
+        if (jumlahSoal <= nomorSoal) {
+            os.println("system#timer_off");
+            os.println("Waktu anda sudah habis, silahkan tekan enter untuk selesai ujian dan menyimpan jawaban anda");
             this.clientThread.setIsUjian(0);
+            this.cancel();
         } else {
             this.nomorSoal++;
             os.println("Soal nomor" + this.nomorSoal);
